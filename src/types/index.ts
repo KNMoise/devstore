@@ -1,0 +1,1 @@
+// # Global TypeScript types (e.g., Product, User)
