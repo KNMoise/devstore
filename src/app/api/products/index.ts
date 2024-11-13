@@ -1,15 +1,17 @@
 import { PrismaClient } from '@prisma/client';
+import type { NextApiRequest, NextApiResponse } from 'next';
 
 const prisma = new PrismaClient();
 
-export async function GET() {
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  if (req.method !== 'GET') {
+    return res.status(405).json({ message: 'Method Not Allowed' });
+  }
+
   try {
     const products = await prisma.product.findMany();
-    return new Response(JSON.stringify(products), { status: 200 });
+    res.status(200).json(products);
   } catch (error) {
-    console.error(error);
-    return new Response('Error fetching products', { status: 500 });
-  } finally {
-    await prisma.$disconnect();
+    res.status(500).json({ error: 'Failed to retrieve products' });
   }
 }

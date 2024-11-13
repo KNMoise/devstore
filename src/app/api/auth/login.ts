@@ -1,20 +1,26 @@
-// src/app/api/auth/login.ts
-import { NextApiRequest, NextApiResponse } from 'next';
-import { getUserByEmail } from '../../../lib/db';
-import { verifyPassword, generateToken } from '../../../lib/auth';
+import { PrismaClient } from '@prisma/client';
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (req.method === 'POST') {
-    const { email, password } = req.body;
-    const user = await getUserByEmail(email);
+const prisma = new PrismaClient();
+const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret_key'; // Set this in .env
 
-    if (user && verifyPassword(password, user.password)) {
-      const token = generateToken(user.id);
-      res.status(200).json({ token });
-    } else {
-      res.status(401).json({ message: 'Invalid email or password' });
+export async function POST(req: Request) {
+  const { email, password } = await req.json();
+
+  try {
+    const user = await prisma.user.findUnique({ where: { email } });
+
+    if (!user || !(await bcrypt.compare(password, user.password))) {
+      return new Response('Invalid credentials', { status: 401 });
     }
-  } else {
-    res.status(405).json({ message: 'Method not allowed' });
+
+    const token = jwt.sign({ id: user.id, email: user.email }, JWT_SECRET, { expiresIn: '1h' });
+    return new Response(JSON.stringify({ token }), { status: 200 });
+  } catch (error) {
+    console.error(error);
+    return new Response('Login failed', { status: 500 });
+  } finally {
+    await prisma.$disconnect();
   }
 }

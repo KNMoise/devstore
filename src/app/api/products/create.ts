@@ -1,25 +1,21 @@
 import { PrismaClient } from '@prisma/client';
+import type { NextApiRequest, NextApiResponse } from 'next';
 
 const prisma = new PrismaClient();
 
-export async function POST(req: Request) {
-  const { name, description, price, stock, imageUrl } = await req.json();
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  if (req.method !== 'POST') {
+    return res.status(405).json({ message: 'Method Not Allowed' });
+  }
+
+  const { name, description, price, stock, imageUrl } = req.body;
 
   try {
     const newProduct = await prisma.product.create({
-      data: {
-        name,
-        description,
-        price,
-        stock,
-        imageUrl: imageUrl || '',
-      },
+      data: { name, description, price, stock, imageUrl },
     });
-    return new Response(JSON.stringify(newProduct), { status: 201 });
+    res.status(201).json(newProduct);
   } catch (error) {
-    console.error(error);
-    return new Response('Error creating product', { status: 500 });
-  } finally {
-    await prisma.$disconnect();
+    res.status(500).json({ error: 'Failed to create product' });
   }
 }

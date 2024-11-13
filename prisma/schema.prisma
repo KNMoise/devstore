@@ -1,12 +1,42 @@
-// prisma/schema.prisma
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")  
+}
 
+generator client {
+  provider = "prisma-client-js"
+}
 
+// Define User model with relationships and timestamps
+model User {
+  id             Int             @id @default(autoincrement())
+  email          String          @unique
+  password       String
+  name           String
+  orders         Order[]
+  passwordResets PasswordReset[] // Defines reverse relation with PasswordReset model
 
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+}
+
+// Define PasswordReset model to handle password reset tokens with a user relationship
+model PasswordReset {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  token     String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user      User     @relation(fields: [userId], references: [id])
+}
+
+// Define Order model with user and order item relationships
 model Order {
   id          Int       @id @default(autoincrement())
   userId      Int
   totalAmount Float
-  status      String    // 'pending', 'shipped', 'delivered', 'cancelled'
+  status      String    // e.g., 'pending', 'shipped', 'delivered', 'cancelled'
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
   
@@ -14,7 +44,7 @@ model Order {
   orderItems  OrderItem[]
 }
 
-
+// Define OrderItem model for items in an order, related to Product and Order
 model OrderItem {
   id        Int      @id @default(autoincrement())
   orderId   Int
@@ -26,6 +56,7 @@ model OrderItem {
   product   Product  @relation(fields: [productId], references: [id])
 }
 
+// Define Product model with a relation to order items
 model Product {
   id          Int       @id @default(autoincrement())
   name        String
@@ -37,36 +68,4 @@ model Product {
   updatedAt   DateTime  @updatedAt
 
   orderItems  OrderItem[]
-}
-
-
-model PasswordReset {
-  id        Int      @id @default(autoincrement())
-  userId    Int
-  token     String   @unique
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  user      User     @relation(fields: [userId], references: [id])
-}
-
-model User {
-  id            Int            @id @default(autoincrement())
-  email         String         @unique
-  password      String
-  name          String
-  orders        Order[]
-  role      String   @default("customer") 
-  passwordResets PasswordReset[]  
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
-}
-
-datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")  
-}
-
-generator client {
-  provider = "prisma-client-js"
 }

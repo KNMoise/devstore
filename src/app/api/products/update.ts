@@ -1,29 +1,22 @@
 import { PrismaClient } from '@prisma/client';
+import type { NextApiRequest, NextApiResponse } from 'next';
 
 const prisma = new PrismaClient();
 
-export async function PUT(req: Request, { params }: { params: { productId: string } }) {
-  const { productId } = params;
-  const { name, description, price, stock, imageUrl } = await req.json();
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  if (req.method !== 'PUT') {
+    return res.status(405).json({ message: 'Method Not Allowed' });
+  }
+
+  const { id, name, description, price, stock, imageUrl } = req.body;
 
   try {
     const updatedProduct = await prisma.product.update({
-      where: {
-        id: parseInt(productId),
-      },
-      data: {
-        name,
-        description,
-        price,
-        stock,
-        imageUrl: imageUrl || '',
-      },
+      where: { id: Number(id) },
+      data: { name, description, price, stock, imageUrl },
     });
-    return new Response(JSON.stringify(updatedProduct), { status: 200 });
+    res.status(200).json(updatedProduct);
   } catch (error) {
-    console.error(error);
-    return new Response('Error updating product', { status: 500 });
-  } finally {
-    await prisma.$disconnect();
+    res.status(500).json({ error: 'Failed to update product' });
   }
 }

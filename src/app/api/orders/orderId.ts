@@ -1,26 +1,33 @@
+
 import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-export async function PUT(req: Request, { params }: { params: { orderId: string } }) {
-  const { orderId } = params;
-  const { status } = await req.json();
+export async function GET(req: Request) {
+  const { searchParams } = new URL(req.url);
+  const orderId = parseInt(searchParams.get('orderId') || '');
+
+  if (isNaN(orderId)) {
+    return new Response('Invalid order ID', { status: 400 });
+  }
 
   try {
-    // Update the order's status in the database
-    const updatedOrder = await prisma.order.update({
-      where: {
-        id: parseInt(orderId),
-      },
-      data: {
-        status: status,
+    const order = await prisma.order.findUnique({
+      where: { id: orderId },
+      include: {
+        user: true,
+        items: true,
       },
     });
 
-    return new Response(JSON.stringify(updatedOrder), { status: 200 });
+    if (!order) {
+      return new Response('Order not found', { status: 404 });
+    }
+
+    return new Response(JSON.stringify(order), { status: 200 });
   } catch (error) {
-    console.error('Error updating order status:', error);
-    return new Response('Error updating order status', { status: 500 });
+    console.error(error);
+    return new Response('Failed to retrieve order', { status: 500 });
   } finally {
     await prisma.$disconnect();
   }

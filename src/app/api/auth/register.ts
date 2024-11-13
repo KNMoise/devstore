@@ -1,19 +1,23 @@
-// src/app/api/auth/register.ts
-import { NextApiRequest, NextApiResponse } from 'next';
-import { hashPassword, createUser } from '../../../lib/auth';
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (req.method === 'POST') {
-    const { email, password } = req.body;
-    const hashedPassword = await hashPassword(password);
+import { PrismaClient } from '@prisma/client';
+import bcrypt from 'bcryptjs';
 
-    try {
-      const user = await createUser({ email, password: hashedPassword });
-      res.status(201).json({ message: 'User created successfully', user });
-    } catch (error) {
-      res.status(400).json({ message: 'Error creating user' });
-    }
-  } else {
-    res.status(405).json({ message: 'Method not allowed' });
+const prisma = new PrismaClient();
+
+export async function POST(req: Request) {
+  const { name, email, password } = await req.json();
+
+  try {
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const newUser = await prisma.user.create({
+      data: { name, email, password: hashedPassword },
+    });
+
+    return new Response(JSON.stringify(newUser), { status: 201 });
+  } catch (error) {
+    console.error(error);
+    return new Response('Failed to register user', { status: 500 });
+  } finally {
+    await prisma.$disconnect();
   }
 }
