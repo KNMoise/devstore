@@ -33,16 +33,20 @@ model PasswordReset {
 
 // Define Order model with user and order item relationships
 model Order {
-  id          Int       @id @default(autoincrement())
-  userId      Int
-  totalAmount Float
-  status      String    // e.g., 'pending', 'shipped', 'delivered', 'cancelled'
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  
-  user        User      @relation(fields: [userId], references: [id])
-  orderItems  OrderItem[]
+  id            Int            @id @default(autoincrement())
+  userId        Int
+  totalAmount   Float
+  status        String          // 'pending', 'completed', 'failed', 'cancelled'
+  paymentMethod String?         // 'mobileMoney', 'paypal', etc.
+  paymentStatus String          @default("pending") // 'pending', 'paid', 'failed'
+  paymentId     String?         // Store external payment transaction ID if needed
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+
+  user          User            @relation(fields: [userId], references: [id])
+  orderItems    OrderItem[]
 }
+
 
 // Define OrderItem model for items in an order, related to Product and Order
 model OrderItem {
