@@ -1,23 +1,40 @@
-// src/components/admin/DashboardStats.tsx
-import React from 'react';
+// src/app/components/admin/DashboardStats.tsx
+import { PrismaClient } from '@prisma/client';
 
-const DashboardStats = () => {
+const prisma = new PrismaClient();
+
+type DashboardStatsProps = {
+  userCount: number;
+  orderCount: number;
+  productCount: number;
+  incomeBalance: number;  // Adding the income balance
+};
+
+export default function DashboardStats({
+  userCount,
+  orderCount,
+  productCount,
+  incomeBalance,
+}: DashboardStatsProps) {
   return (
-    <div className="grid grid-cols-3 gap-4">
-      <div className="p-4 bg-green-100 rounded-md">
-        <h2>Total Sales</h2>
-        <p>$5000</p>
+    <div className="dashboard-stats grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="stat-card p-4 bg-blue-500 text-white rounded shadow-md">
+        <h3 className="text-xl font-semibold">Total Users</h3>
+        <p className="text-2xl">{userCount}</p>
       </div>
-      <div className="p-4 bg-blue-100 rounded-md">
-        <h2>Total Orders</h2>
-        <p>200</p>
+      <div className="stat-card p-4 bg-green-500 text-white rounded shadow-md">
+        <h3 className="text-xl font-semibold">Total Orders</h3>
+        <p className="text-2xl">{orderCount}</p>
       </div>
-      <div className="p-4 bg-yellow-100 rounded-md">
-        <h2>Total Users</h2>
-        <p>150</p>
+      <div className="stat-card p-4 bg-yellow-500 text-white rounded shadow-md">
+        <h3 className="text-xl font-semibold">Total Products</h3>
+        <p className="text-2xl">{productCount}</p>
+      </div>
+      {/* New Income Balance stat card */}
+      <div className="stat-card p-4 bg-purple-500 text-white rounded shadow-md">
+        <h3 className="text-xl font-semibold">Income Balance</h3>
+        <p className="text-2xl">${incomeBalance.toFixed(2)}</p>
       </div>
     </div>
   );
-};
-
-export default DashboardStats;
+}

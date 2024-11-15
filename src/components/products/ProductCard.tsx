@@ -1,24 +1,26 @@
-// src/components/products/ProductCard.tsx
-import React from 'react';
-import Link from 'next/link';
-import Button from '../ui/Button';
+import Link from "next/link";
+import { PrismaClient } from '@prisma/client'; // Import PrismaClient
+import { Product } from '.prisma/client'; // Import Product type from generated Prisma types
 
-interface ProductCardProps {
-  id: number;
-  name: string;
-  price: number;
-  description: string;
-}
+type ProductCardProps = {
+  product: Product;
+};
 
-const ProductCard: React.FC<ProductCardProps> = ({ id, name, price, description }) => {
+const ProductCard = ({ product }: ProductCardProps) => {
   return (
-    <div className="border rounded-md p-4">
-      <h3>{name}</h3>
-      <p>{description}</p>
-      <p className="font-bold">${price.toFixed(2)}</p>
-      <Link href={`/products/${id}`}>
-        <Button>View Details</Button>
-      </Link>
+    <div className="product-card bg-white rounded-lg shadow-md overflow-hidden">
+      <img
+        src={product.imageUrl || "/default-product-image.jpg"}
+        alt={product.name}
+        className="w-full h-64 object-cover"
+      />
+      <div className="p-4">
+        <h3 className="text-xl font-semibold">{product.name}</h3>
+        <p className="text-lg text-gray-700">${product.price}</p>
+        <Link href={`/products/${product.id}`}>
+          <a className="text-blue-600 hover:underline mt-2 inline-block">View Details</a>
+        </Link>
+      </div>
     </div>
   );
 };

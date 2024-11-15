@@ -60,16 +60,17 @@ model OrderItem {
   product   Product  @relation(fields: [productId], references: [id])
 }
 
-// Define Product model with a relation to order items
 model Product {
-  id          Int       @id @default(autoincrement())
-  name        String
-  description String
-  price       Float
-  stock       Int
-  imageUrl    String?
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  id          Int       @id @default(autoincrement()) // Primary key
+  name        String    // Name of the product
+  description String    // Description of the product
+  price       Float     // Price of the product
+  stock       Int       // Available stock of the product
+  imageUrl    String?   // URL to the product image (optional)
+  createdAt   DateTime  @default(now()) // Date when the product was created
+  updatedAt   DateTime  @updatedAt       // Date when the product was last updated
 
-  orderItems  OrderItem[]
+  orderItems  OrderItem[] // A product can be part of many order items (one-to-many relationship)
 }
+
+
