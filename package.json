@@ -5,13 +5,14 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "",
+    "start": "page.tsx",
     "lint": "next lint"
   },
   "dependencies": {
     "@prisma/client": "^5.22.0",
     "axios": "^1.7.7",
     "bcryptjs": "^2.4.3",
+    "cookies-next": "^5.0.2",
     "jsonwebtoken": "^9.0.2",
     "next": "15.0.3",
     "next-auth": "^4.24.10",
@@ -22,6 +23,7 @@
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
+    "@types/cookie": "^1.0.0",
     "@types/jsonwebtoken": "^9.0.7",
     "@types/node": "^20.17.6",
     "@types/react": "^18",
